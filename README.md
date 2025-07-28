@@ -150,7 +150,7 @@ PYLCP-CAI/
 欢迎提交问题报告和功能请求！
 作者信息：
 
-Zhao Yingpeng：2112009046@zjut.edu.cn
+Zhao Yingpeng：2112009046@zjut.edu.cn/yingpeng-zhao@mail.tsinghua.edu.cn
 
 Bao Shuning：221122090120@zjut.edu.cn
 
