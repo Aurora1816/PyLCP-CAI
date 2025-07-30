@@ -76,10 +76,11 @@ class emovtion_atom:
             y0 = np.concatenate([transformed_coordinates[0:3].reshape(3), initial_velocity])  # Initial state, including coordinates and velocity
             t_span = (initial_Time, time_interval[1])
             self.sol = solve_ivp(self.g_evolution, t_span, y0, t_eval=np.linspace(initial_Time, time_interval[1], num=int((time_interval[1]-initial_Time)/max_step)+1), max_step=max_step, method='RK45')
-            transformed_coordinates[:3] = self.sol.y[0:3, -1][:, np.newaxis]  # Take the position at the last time point in the evolution process
+            transformed_coordinates[:3] = self.sol.y[0:3, -1][:, np.newaxis]  # 取演化过程中最后一个时间点的位置
 
+        
         else:
-            y0 = np.concatenate([transformed_coordinates[0:3].reshape(3), initial_velocity])  # Initial state, including coordinates and velocity
+            y0 = np.concatenate([transformed_coordinates[0:3].reshape(3), initial_velocity])  # 初始状态，包括坐标和速度
             t_span = (initial_Time, time_interval[1])
             self.sol = solve_ivp(self.v_evolution, t_span, y0, t_eval=np.linspace(initial_Time, time_interval[1], num=int((time_interval[1]-initial_Time)/max_step)+1), max_step=max_step, method='RK45')
             transformed_coordinates[:3] = self.sol.y[0:3, -1][:, np.newaxis]  # Take the position at the last time point in the evolution process

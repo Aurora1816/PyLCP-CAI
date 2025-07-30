@@ -135,6 +135,10 @@ class Bragg(object):
     def evolve_motion(self, args):
         initial_state, sols_i, t_span, progress_bar, kwargs, a = args
 
+    def evolve_motion(self,args):
+        initial_state,sols_i,t_span,progress_bar,kwargs,a=args
+>>>>>>> origin/main
+
         if progress_bar:
             progress = progressBar()
         # Schrödinger and classical equations

@@ -165,13 +165,13 @@ for ii in range(3):
     ax[ii, 1].tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
 for ax_i in ax[-1, :]:
     ax_i.set_xlabel('Time (s)', fontsize=15)
-    ax_i.tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
+    ax_i.tick_params(axis='both', labelsize=15)  # 调整刻度标签字体大小
 fig.subplots_adjust(left=0.1, bottom=0.08, wspace=0.22)
 plt.show()
-# State density
+#态密度
 i=0
 solsi=sols0
-# Create subplot
+# 创建子图
 fig, ax = plt.subplots(figsize=(6, 3))
 # Calculate curves for each slice
 rho_F1 = np.sum(solsi[i].N[0:3, :], axis=0).real
@@ -282,14 +282,14 @@ for ii in range(3):
     ax[ii, 1].tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
 for ax_i in ax[-1, :]:
     ax_i.set_xlabel('Time (s)', fontsize=15)
-    ax_i.tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
+    ax_i.tick_params(axis='both', labelsize=15)  # 调整刻度标签字体大小
 fig.subplots_adjust(left=0.1, bottom=0.08, wspace=0.22)
 plt.show()
 #%%
-# State density
+#态密度
 i=0
 solsi=sols1
-# Create subplot
+# 创建子图
 fig, ax = plt.subplots(figsize=(6, 3))
 # Calculate curves for each slice
 rho_F1 = np.sum(solsi[i].N[0:3, :], axis=0).real
@@ -399,14 +399,14 @@ for ii in range(3):
     ax[ii, 1].tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
 for ax_i in ax[-1, :]:
     ax_i.set_xlabel('Time (s)', fontsize=15)
-    ax_i.tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
+    ax_i.tick_params(axis='both', labelsize=15)  # 调整刻度标签字体大小
 fig.subplots_adjust(left=0.1, bottom=0.08, wspace=0.22)
 plt.show()
 #%%
-# State density
+#态密度
 i=0
 solsi=sols2
-# Create subplot
+# 创建子图
 fig, ax = plt.subplots(figsize=(6, 3))
 # Calculate curves for each slice
 rho_F1 = np.sum(solsi[i].N[0:3, :], axis=0).real
@@ -470,9 +470,10 @@ plt.title(r'$F\' =3$')
 # Custom x-axis labels
 mf_labels_2 = ['mF=-3','mF=-2','mF=-1', 'mF=0', 'mF=1','mF=2','mF=3']
 plt.xticks(range(7), mf_labels_2)
-plt.tight_layout()  # Automatically adjust subplot layout to avoid overlap
+plt.tight_layout()  # 自动调整子图布局，以免重叠
 plt.show()
-# Temperature plot
+
+#温度绘图
 allr = np.concatenate([sol.r[:, :].T for i, sol in enumerate(solsi) if i not in [16, 23]]).T
 allv = np.concatenate([sol.v[:, :].T for i, sol in enumerate(solsi) if i not in [16, 23]]).T
 img, y_edges, z_edges = np.histogram2d(allr[1, ::100]/k, allr[2, ::100]/k, bins=[np.arange(-5., 5.01, 0.15), np.arange(-5., 5.01, 0.15)])
@@ -544,13 +545,14 @@ for ii in range(3):
     ax[ii, 1].tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
 for ax_i in ax[-1, :]:
     ax_i.set_xlabel('Time (s)', fontsize=15)
-    ax_i.tick_params(axis='both', labelsize=15)  # Adjust the font size of tick labels
+    ax_i.tick_params(axis='both', labelsize=15)  # 调整刻度标签字体大小
 fig.subplots_adjust(left=0.1, bottom=0.08, wspace=0.22)
 plt.show()
-# State density
+
+#态密度
 i=0
 solsi=sols3
-# Create subplot
+# 创建子图
 fig, ax = plt.subplots(figsize=(6, 3))
 # Calculate curves for each slice
 rho_F1 = np.sum(solsi[i].N[0:3, :], axis=0).real
@@ -614,9 +616,10 @@ plt.title(r'$F\' =3$')
 # Custom x-axis labels
 mf_labels_2 = ['mF=-3','mF=-2','mF=-1', 'mF=0', 'mF=1','mF=2','mF=3']
 plt.xticks(range(7), mf_labels_2)
-plt.tight_layout()  # Automatically adjust subplot layout to avoid overlap
+plt.tight_layout()  # 自动调整子图布局，以免重叠
 plt.show()
-# Temperature plot
+
+#温度绘图
 allr = np.concatenate([sol.r[:, :].T for i, sol in enumerate(solsi) if i not in [16, 23]]).T
 allv = np.concatenate([sol.v[:, :].T for i, sol in enumerate(solsi) if i not in [16, 23]]).T
 img, y_edges, z_edges = np.histogram2d(allr[1, ::100]/k, allr[2, ::100]/k, bins=[np.arange(-5., 5.01, 0.15), np.arange(-5., 5.01, 0.15)])

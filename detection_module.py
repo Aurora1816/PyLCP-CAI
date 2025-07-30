@@ -87,23 +87,24 @@ class emovtion_atom:
             # Perform position evolution
             y0 = np.concatenate([transformed_coordinates[0:3].reshape(3), initial_velocity])  # Initial state, including coordinates and velocity
             t_span = (time_interval[0], time_interval[1])
-            sol = solve_ivp(self.g_evolution, t_span, y0, t_eval=np.linspace(time_interval[0], time_interval[1], num=int((time_interval[1] - time_interval[0]) / max_step) + 1), max_step=max_step, method='RK45')
-            transformed_coordinates[:3] = sol.y[0:3, -1][:, np.newaxis]  # Take the position at the last time point in the evolution process
+            sol = solve_ivp(self.g_evolution, t_span, y0, t_eval=np.linspace(time_interval[0], time_interval[1], num=int((time_interval[1]-time_interval[0])/max_step)+1), max_step=max_step, method='RK45')
+            transformed_coordinates[:3] = sol.y[0:3, -1][:, np.newaxis]  # 取演化过程中最后一个时间点的位置
 
-            # Output the evolution time and result
+            # 输出演化时间和结果
             evolution_time = sol.t
             evolution_result = sol.y
+        
         else:
-            y0 = np.concatenate([transformed_coordinates[0:3].reshape(3), initial_velocity])  # Initial state, including coordinates and velocity
+            y0 = np.concatenate([transformed_coordinates[0:3].reshape(3), initial_velocity])  # 初始状态，包括坐标和速度
             t_span = (time_interval[0], time_interval[1])
-            sol = solve_ivp(self.v_evolution, t_span, y0, t_eval=np.linspace(time_interval[0], time_interval[1], num=int((time_interval[1] - time_interval[0]) / max_step) + 1), max_step=max_step, method='RK45')
-            transformed_coordinates[:3] = sol.y[0:3, -1][:, np.newaxis]  # Take the position at the last time point in the evolution process
+            sol = solve_ivp(self.v_evolution, t_span, y0, t_eval=np.linspace(time_interval[0], time_interval[1], num=int((time_interval[1]-time_interval[0])/max_step)+1), max_step=max_step, method='RK45')
+            transformed_coordinates[:3] = sol.y[0:3, -1][:, np.newaxis]  # 取演化过程中最后一个时间点的位置
 
-            # Output the evolution time and result
+            # 输出演化时间和结果
             evolution_time = sol.t
             evolution_result = sol.y
 
-        # Return the transformed coordinates and evolution result
+        # 返回变换后的坐标和演化结果
         return transformed_coordinates[:3], evolution_time, evolution_result
 
 
@@ -243,268 +244,107 @@ class detection_module():
              'pol_coord': 'spherical', 'delta': det, 's': s, 'phase': np.pi / 2, 'wb': wb, 'hb': hb},
         ], beam_type=rectangularBeam)  # dect
 
-        Hg2, Bgq2 = pylcp.hamiltonians.singleF(F=2, gF=1 / 2, muB=1.33)
-        He3, Beq3 = pylcp.hamiltonians.singleF(F=3, gF=2 / 3, muB=1.33)
-        Hg1, Bgq1 = pylcp.hamiltonians.singleF(F=1, gF=-1 / 2, muB=1.33)
-        dijq23 = pylcp.hamiltonians.dqij_two_bare_hyperfine(2, 3)
-        hamiltonian = pylcp.hamiltonian()
-        hamiltonian.add_H_0_block('g', 0. * Hg1)
-        hamiltonian.add_mu_q_block('g', Bgq1, muB=1.33)
-        hamiltonian.add_H_0_block('r', 0 * Hg2)
-        hamiltonian.add_mu_q_block('r', Bgq2, muB=1.33)
-        hamiltonian.add_H_0_block('e', 0 * He3)
-        hamiltonian.add_mu_q_block('e', Beq3, muB=1.33)
-        hamiltonian.add_d_q_block('r', 'e', dijq23)
-        hamiltonian.mass = mass
-        self.hamiltonian = hamiltonian
-        magField = pylcp.constantMagneticField(np.array([1e-8, 1e-8, 1e-8]))
-        self.obe = pylcp.obe(laserBeams, magField, hamiltonian, self.g, transform_into_re_im=True)
+class detection_tof_module():
+    def lowpass_filter(input_array, cutoff_frequency, order=4):
+        """
+<<<<<<< HEAD
+        Use a Butterworth low-pass filter to perform low-pass filtering on a one-dimensional array.
 
-    def update_tmax(self, new_tmax_value):
-        # Update the shared tmax value
-        self.tmax = new_tmax_value
+        Parameters:
+        - input_array: The input one-dimensional array
+        - cutoff_frequency: The cutoff frequency, i.e., the maximum frequency of the low-frequency components to be retained
+        - order: The filter order, default is 4
 
-    def turn_position(self, position_turn=np.zeros(3)):
-        self.position_turn = position_turn
+        Returns:
+        - The one-dimensional array after low-pass filtering
+        """
+        # Create the low-pass Butterworth filter coefficients
+        b, a = butter(order, cutoff_frequency, btype='low', analog=False)
+        # Apply the low-pass filter
+        filtered_array = lfilter(b, a, input_array)
 
-    def generate_random_solution(self, arg_list):
-        import numpy as np
-        obe, roffset, vscale, voffset, rscale, idx = arg_list
-        tmax = self.tmax
-        kwargs = {'t_eval': np.linspace(0, tmax, 5001),
-                  'random_recoil': True,
-                  'progress_bar': False,
-                  'max_scatter_probability': 0.5,
-                  'record_force': True}
-        rho0 = np.zeros(obe.hamiltonian.n,)
-        radom_rho0 = radom_create.generate_one_hot_vector()
-        rho0[0:8] = radom_rho0 + 0.001
-        obe.set_initial_position(rscale * np.random.randn(3) + roffset)
-        obe.set_initial_velocity(vscale * np.random.randn(3) + voffset)
-        obe.set_initial_rho(np.diag(rho0).ravel())
-        obe.evolve_motion(t_span=([0, tmax]), **kwargs)
-        return obe.sol
+        return filtered_array
 
-    def sol_solution(self, arg_list):
-        import numpy as np
-        obe, sols_i, idx = arg_list
-        tmax = self.tmax
-        kwargs = {'t_eval': np.linspace(0, tmax, 5001),
-                  'random_recoil': True,
-                  'progress_bar': False,
-                  'max_scatter_probability': 0.5,
-                  'record_force': True}
-        rho0 = np.zeros(obe.hamiltonian.n,)
-        if idx == -1:
-            rho = np.diag(abs(sols_i.rho[:, :, -1]))
-            obe.r0 = sols_i.r[:, -1] + self.position_turn
-            obe.v0 = sols_i.v[:, -1]
-        else:
-            rho = np.diag(abs(sols_i[idx].rho[:, :, -1]))
-            obe.r0 = sols_i[idx].r[:, -1] + self.position_turn
-            obe.v0 = sols_i[idx].v[:, -1]
+    def efficiency(atoms_position, collection_system_position):
+        # Calculate the distance from each atom to the collection system
+        distances_to_system = np.linalg.norm(atoms_position - collection_system_position, axis=1)
 
-        rho0[0:8] = rho[0:8]
-        obe.set_initial_rho(np.diag(rho0).ravel())
-        obe.evolve_motion(t_span=([0, tmax]), **kwargs)
-        return obe.sol
+        # Set the reception efficiency of the fluorescence collection system, here simplified to be proportional to the reciprocal of the distance
+        efficiency = 1 / distances_to_system
+        return efficiency
 
+    def simulate_voltage(atoms_position, initial_intensity, decay_coefficient, theta_std, gain_coefficient, s, efficiency,
+                         collection_system_position=np.array([0, 0, 0.01]),
+                         angle=120, D=0.0012, landa1=0.99):
+        """
+        Function to simulate the voltage output of the detection device
 
-class Blow_module():
-    def __init__(self, s, det, k, gamma, mass, g, wb, hb):
-        self.position_turn = np.zeros(3)
+        Parameters:
+        - atoms_position: A two-dimensional NumPy array, each row represents the three-dimensional coordinates of an atom
+        - initial_intensity: A one-dimensional NumPy array, each element represents the initial luminous intensity of the corresponding atom
+        - decay_coefficient: A floating-point number representing the luminous intensity decay coefficient
+        - theta_std: A floating-point number representing the standard deviation of the Gaussian divergence function, controlling the size of the divergence angle
+        - gain_coefficient: A floating-point number representing the voltage gain coefficient
+        - angle: The collection angle of the detection device, in degrees, default is 120 degrees
+        - size: The size of the detection device, in millimeters, default is 8 millimeters
+        - D: The focal length of the lens
+        - landa1: The transmittance of the window
+
+        Returns:
+        - total_voltage: A floating-point number representing the simulated total voltage output of the detection device
+        - s: The background light intensity
+        """
+
+        def intensity_decay_model(distance, initial_intensity, decay_coefficient, D, landa1, s):
+            return initial_intensity * np.exp(-decay_coefficient) * landa1 / (D ** 2) / 4 / np.pi / distance * 2 * 0.23 + s * 0.000000001
+
+        def gaussian_beam_profile(theta, theta_std):
+            return np.exp(-(theta ** 2) / (2 * theta_std ** 2))
+
+        # Calculate the distance from each atom to the collection system
+        distances_to_system = np.linalg.norm(atoms_position - collection_system_position, axis=1)
+
+        # Generate random divergence angles
+        theta = np.random.normal(loc=0, scale=theta_std, size=len(atoms_position))
+
+        # Calculate the luminous intensity of each atom, considering the divergence angle
+        atoms_intensity = intensity_decay_model(distances_to_system, initial_intensity, decay_coefficient, D, landa1, s) * \
+                          gaussian_beam_profile(theta, theta_std)
+
+        # Calculate the projection of each atom on the detection device
+        projection = atoms_intensity * efficiency
+
+        # Calculate the unit vector in the direction of the detection device
+        direction = collection_system_position / np.linalg.norm(collection_system_position)
+
+        # Calculate the angle between each atom and the position of the detection device
+        angles = np.arccos(np.clip(np.dot(atoms_position, direction), -1.0, 1.0))
+
+        # According to the collection angle of the detection device, calculate the atoms within the collection range
+        in_range = np.abs(np.degrees(angles)) < angle / 2
+
+        # Simulate the conversion of light intensity to voltage, considering all atoms
+        total_voltage = np.sum(projection) * gain_coefficient
+        # total_voltage=lowpass_filter(total_voltage , cutoff_frequency=0.1, order=4)
+        return total_voltage
+
+    def position_and_intensity_singletime(sols, i, k, gamma, max_intensities=1e-16):
+        atoms_positions = []
+        initial_intensities = []
         x0 = 1 / k
-        self.t0 = 1 / gamma
-        self.tmax = 0.05 / self.t0
-        '''
-        In the case of multiprocessing, it prompts that the local variable 'tmax' cannot be accessed because it is not associated with a value. According to your code, I think this may be a problem caused by sharing variables in multiprocessing.
-        To solve this problem, you can consider using multiprocessing.Manager to create a shared variable.
-        '''
-        self.g = g
-        # self.g=g*self.t0**2/(x0*1e-2)
-        wb = wb / x0
-        hb = hb / x0
-        laserBeams_Blow = {}
+        for sol in sols:
+            intensity = np.linalg.norm(sol.F[:, i], axis=0) * 3.0e8 / 2 * (cts.hbar * k * gamma)
+            if intensity >= max_intensities:
+                intensity = 0
+            initial_intensities.append(intensity)
+            atoms_positions.append(sol.r[:, i] * x0 / 100)
 
-        laserBeams_Blow['r->e'] = pylcp.laserBeams([
-            {'kvec': np.array([0., 0., 1.]), 'pol': 1,
-             'pol_coord': 'spherical', 'delta': det, 's': s, 'phase': 0, 'wb': wb, 'hb': hb},
-        ], beam_type=rectangularBeam)
-        Hg2, Bgq2 = pylcp.hamiltonians.singleF(F=2, gF=1 / 2, muB=1.33)
-        He3, Beq3 = pylcp.hamiltonians.singleF(F=3, gF=2 / 3, muB=1.33)
-        Hg1, Bgq1 = pylcp.hamiltonians.singleF(F=1, gF=-1 / 2, muB=1.33)
-        dijq23 = pylcp.hamiltonians.dqij_two_bare_hyperfine(2, 3)
-        hamiltonian = pylcp.hamiltonian()
-        hamiltonian.add_H_0_block('g', 0. * Hg1)
-        hamiltonian.add_mu_q_block('g', Bgq1, muB=1.33)
-        hamiltonian.add_H_0_block('r', 0 * Hg2)
-        hamiltonian.add_mu_q_block('r', Bgq2, muB=1.33)
-        hamiltonian.add_H_0_block('e', 0 * He3)
-        hamiltonian.add_mu_q_block('e', Beq3, muB=1.33)
-        hamiltonian.add_d_q_block('r', 'e', dijq23)
-        hamiltonian.mass = mass
-        self.hamiltonian = hamiltonian
-        magField = pylcp.constantMagneticField(np.array([1e-8, 1e-8, 1e-8]))
-        self.obe = pylcp.obe(laserBeams_Blow, magField, self.hamiltonian, self.g, transform_into_re_im=True)
+        # Convert to NumPy arrays
+        atoms_positions = np.array(atoms_positions)
+        initial_intensities = np.array(initial_intensities)
 
-    def update_tmax(self, new_tmax_value):
-        # Update the shared tmax value
-        self.tmax = new_tmax_value
+        return atoms_positions, initial_intensities
 
-    def turn_position(self, position_turn=np.zeros(3)):
-        self.position_turn = position_turn
-
-    def generate_random_solution(self, arg_list):
-        import numpy as np
-        rho0, obe, roffset, vscale, voffset, rscale, idx = arg_list
-        tmax = self.tmax
-        kwargs = {'t_eval': np.linspace(0, tmax, 5001),
-                  'random_recoil': True,
-                  'progress_bar': False,
-                  'max_scatter_probability': 0.5,
-                  'record_force': True}
-        rho0 = np.zeros(obe.hamiltonian.n,)
-        radom_rho0 = radom_create.generate_one_hot_vector()
-        rho0[0:8] = radom_rho0 + 0.001
-        obe.set_initial_position(rscale * np.random.randn(3) + roffset)
-        obe.set_initial_velocity(vscale * np.random.randn(3) + voffset)
-        obe.set_initial_rho(np.diag(rho0).ravel())
-        obe.evolve_motion(t_span=([0, tmax]), **kwargs)
-        return obe.sol
-
-    def sol_solution(self, arg_list):
-        import numpy as np
-        obe, sols_i, idx = arg_list
-        tmax = self.tmax
-        kwargs = {'t_eval': np.linspace(0, tmax, 5001),
-                  'random_recoil': True,
-                  'progress_bar': False,
-                  'max_scatter_probability': 0.5,
-                  'record_force': True}
-        rho0 = np.zeros(obe.hamiltonian.n,)
-        if idx == -1:
-            rho = np.diag(abs(sols_i.rho[:, :, -1]))
-            obe.r0 = sols_i.r[:, -1] + self.position_turn
-            obe.v0 = sols_i.v[:, -1]
-        else:
-            rho = np.diag(abs(sols_i[idx].rho[:, :, -1]))
-            obe.r0 = sols_i[idx].r[:, -1] + self.position_turn
-            obe.v0 = sols_i[idx].v[:, -1]
-
-        rho0[0:8] = rho[0:8]
-        obe.set_initial_rho(np.diag(rho0).ravel())
-        obe.evolve_motion(t_span=([0, tmax]), **kwargs)
-        return obe.sol
-
-
-class detection_pumping():
-    def __init__(self, s1, s2, det1, det2, k, gamma, mass, g, wb, hb):
-        self.position_turn = np.zeros(3)
-        x0 = 1 / k
-        self.t0 = 1 / gamma
-        self.tmax = 0.05 / self.t0
-        '''
-        In the case of multiprocessing, it prompts that the local variable 'tmax' cannot be accessed because it is not associated with a value. According to your code, I think this may be a problem caused by sharing variables in multiprocessing.
-        To solve this problem, you can consider using multiprocessing.Manager to create a shared variable.
-        '''
-        self.g = g
-        # self.g=g*self.t0**2/(x0*1e-2)
-        wb = wb / x0
-        hb = hb / x0
-        laserBeams = {}
-
-        laserBeams['r->e'] = pylcp.laserBeams([
-            {'kvec': np.array([0., 0., 1.]), 'pol': 1,
-             'pol_coord': 'spherical', 'delta': det2, 's': s2, 'phase': 0, 'wb': wb, 'hb': hb},
-            {'kvec': np.array([0., 0., -1.]), 'pol': -1,
-             'pol_coord': 'spherical', 'delta': det2, 's': s2, 'phase': np.pi / 2, 'wb': wb, 'hb': hb},
-        ], beam_type=rectangularBeam)  # dect
-        laserBeams['r->c'] = pylcp.laserBeams([
-            {'kvec': np.array([0., 0., 1.]), 'pol': 1,
-             'pol_coord': 'spherical', 'delta': det2, 's': s2, 'phase': 0, 'wb': wb, 'hb': hb},
-            {'kvec': np.array([0., 0., -1.]), 'pol': -1,
-             'pol_coord': 'spherical', 'delta': det2, 's': s2, 'phase': np.pi / 2, 'wb': wb, 'hb': hb},
-        ], beam_type=rectangularBeam)  # dect
-        laserBeams['g->c'] = pylcp.laserBeams([
-            {'kvec': np.array([0., 0., 1.]), 'pol': 1,
-             'pol_coord': 'spherical', 'delta': det1, 's': s1, 'phase': 0, 'wb': wb, 'hb': hb},
-            {'kvec': np.array([0., 0., -1.]), 'pol': -1,
-             'pol_coord': 'spherical', 'delta': det1, 's': s1, 'phase': np.pi / 2, 'wb': wb, 'hb': hb},
-        ], beam_type=rectangularBeam)  # dect
-
-        Hg2, Bgq2 = pylcp.hamiltonians.singleF(F=2, gF=1 / 2, muB=1.33)
-        He3, Beq3 = pylcp.hamiltonians.singleF(F=3, gF=2 / 3, muB=1.33)
-        He1, Beq1 = pylcp.hamiltonians.singleF(F=1, gF=2 / 3, muB=1.33)
-        # Newly added compared to detection1
-        Hg1, Bgq1 = pylcp.hamiltonians.singleF(F=1, gF=-1 / 2, muB=1.33)
-        dijq23 = pylcp.hamiltonians.dqij_two_bare_hyperfine(2, 3)
-        dijq11 = pylcp.hamiltonians.dqij_two_bare_hyperfine(1, 1)
-        dijq21 = pylcp.hamiltonians.dqij_two_bare_hyperfine(2, 1)
-        hamiltonian = pylcp.hamiltonian()
-        hamiltonian.add_H_0_block('g', 0. * Hg1)
-        hamiltonian.add_mu_q_block('g', Bgq1, muB=1.33)
-        hamiltonian.add_H_0_block('r', 0 * Hg2)
-        hamiltonian.add_mu_q_block('r', Bgq2, muB=1.33)
-        hamiltonian.add_H_0_block('e', 0 * He3)
-        hamiltonian.add_mu_q_block('e', Beq3, muB=1.33)
-        hamiltonian.add_H_0_block('c', np.eye(3) * -1 + He1)
-        hamiltonian.add_mu_q_block('c', Beq1, muB=1.33)
-        hamiltonian.add_d_q_block('r', 'e', dijq23)
-        hamiltonian.add_d_q_block('g', 'c', dijq11)
-        hamiltonian.add_d_q_block('r', 'c', dijq21)
-        hamiltonian.mass = mass
-        self.hamiltonian = hamiltonian
-        magField = pylcp.constantMagneticField(np.array([1e-8, 1e-8, 1e-8]))
-        self.obe = pylcp.obe(laserBeams, magField, hamiltonian, self.g, transform_into_re_im=True)
-
-    def update_tmax(self, new_tmax_value):
-        # Update the shared tmax value
-        self.tmax = new_tmax_value
-
-    def turn_position(self, position_turn=np.zeros(3)):
-        self.position_turn = position_turn
-
-    def generate_random_solution(self, arg_list):
-        import numpy as np
-        obe, roffset, vscale, voffset, rscale, idx = arg_list
-        tmax = self.tmax
-        kwargs = {'t_eval': np.linspace(0, tmax, 5001),
-                  'random_recoil': True,
-                  'progress_bar': False,
-                  'max_scatter_probability': 0.5,
-                  'record_force': True}
-        rho0 = np.zeros(obe.hamiltonian.n,)
-        radom_rho0 = radom_create.generate_one_hot_vector()
-        rho0[0:8] = radom_rho0 + 0.001
-        obe.set_initial_position(rscale * np.random.randn(3) + roffset)
-        obe.set_initial_velocity(vscale * np.random.randn(3) + voffset)
-        obe.set_initial_rho(np.diag(rho0).ravel())
-        obe.evolve_motion(t_span=([0, tmax]), **kwargs)
-        return obe.sol
-
-    def sol_solution(self, arg_list):
-        import numpy as np
-        obe, sols_i, idx = arg_list
-        tmax = self.tmax
-        kwargs = {'t_eval': np.linspace(0, tmax, 5001),
-                  'random_recoil': True,
-                  'progress_bar': False,
-                  'max_scatter_probability': 0.5,
-                  'record_force': True}
-        rho0 = np.zeros(obe.hamiltonian.n,)
-        if idx == -1:
-            rho = np.diag(abs(sols_i.rho[:, :, -1]))
-            obe.r0 = sols_i.r[:, -1] + self.position_turn
-            obe.v0 = sols_i.v[:, -1]
-        else:
-            rho = np.diag(abs(sols_i[idx].rho[:, :, -1]))
-            obe.r0 = sols_i[idx].r[:, -1] + self.position_turn
-            obe.v0 = sols_i[idx].v[:, -1]
-
-        rho0[0:8] = rho[0:8]
-        obe.set_initial_rho(np.diag(rho0).ravel())
-        obe.evolve_motion(t_span=([0, tmax]), **kwargs)
-        return obe.sol
 
 
 class detection_tof_module():
