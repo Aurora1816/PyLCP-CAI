@@ -142,3 +142,4 @@ class process_atom:
         sol_N = np.tile(sol_N0[:, np.newaxis], (1, num_repeats))
         sol.N = sol_N
         return sol
+```

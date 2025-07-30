@@ -645,3 +645,5 @@ ax.set_xlabel('$t (ms)$')
 ax.set_title(f'Atomic Temperature\nResult: ${result} \mu k$')
 plt.legend()
 plt.show()
+# %%
+```

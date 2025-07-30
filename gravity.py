@@ -116,3 +116,4 @@ class Process_atom:
         sol_rho = np.tile(sol_rho0[:, :, np.newaxis], (1, 1, num_repeats))
         sol.rho = sol_rho
         return sol
+```

@@ -1,3 +1,5 @@
+```python
+#%%
 import numpy as np
 import matplotlib.pyplot as plt
 import pylcp
@@ -635,3 +637,8 @@ class gaussiansignal():
         integral_result = (integral_signal - 2 * integral_background) * gain
 
         return integral_result, background_interval, params
+
+
+# %%
+
+```
