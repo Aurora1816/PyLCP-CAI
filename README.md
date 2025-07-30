@@ -27,7 +27,7 @@ If you need to simulate the evolution of a large number of atoms, you can refer 
 ```bash
 pip install -r requirements.txt
 ```
-**Note**:过高的Python版本容易导致Numpy不兼容的问题，这可能是PyLCP的问题，`requirements.txt`是我们测试出的一个比较合适的依赖库版本，Python版本3.8.20比较合适。
+**Note**:A too high Python version may easily lead to Numpy incompatibility issues, which might be a problem with PyLCP. `requirements.txt` contains a set of dependency library versions that we have tested and found to be suitable. A Python version of 3.8.20 is more appropriate.
 ## 🎯 Quick Start
 
 ### Cooling Module
@@ -92,17 +92,15 @@ The interference module is the focus of our work. In this module, we simulate th
 - `Bragg`: Exists in `braggclass.py`. Based on the Bragg diffraction effect, it modifies the class in [PyLCP](https://python-laser-cooling-physics.readthedocs.io/en/latest/index.html) to simulate the Bragg diffraction process.
 
 #### Usage
-我们将以四脉冲干涉仪的测试文件`44.py`为例，介绍拉曼模块的用法。
- - `拉曼拉比`：拉曼拉比的原理是验证不同激光作用时间所导致的基态原子数量比例，目的是找到干涉过程中最优的拉曼光作用时间。在我们的代码中，我们是修改第一次拉曼光的作用时间实现的，即拉曼谱可以看作第一次脉冲作用时间的延长。在`44.py`的`Line 143-Line 224`可以找到参数的初始化，我们将参数`t1_rm1`增大，然后作用`Line 143-Line 224`的第一次拉曼过程，就可以得到拉曼拉比。拉曼拉比中$|F = 2\rangle$最大值所对应的时间就是双光子跃迁中完成全体翻转所需要的时间$\tau$，也就是$\pi$脉冲对应的时间。
- - `拉曼谱`：拉曼谱的原理是扫描共振频率附近的基态原子数量比例，目的是可以找到最优的激光频率。在`44.py`的`Line 271-Line 306`可以找到拉曼谱的演化代码，`w_scan1`和`w_scan2`是扫描的初始频率和截止频率，`raman1_num`是扫描点的个数。需要注意的是，在扫描拉曼谱线的过程中，需要将拉曼光的作用时间`t1_rm1`修改为拉曼拉比所扫描出来的最优时间$\tau$。
- - `四脉冲`：可以看到，我们的代码撰写是按照$\pi/2-\pi-\pi-\pi/2$的先后顺序，同时还包含了中间穿插的重力演化过程，所以无论是三脉冲干涉仪的仿真还是四脉冲干涉的仿真，在演化的过程中都需要及时保存结果，防止因环境崩溃导致的问题。
- - `布拉格干涉仪`：布拉格衍射原子干涉仪的测试代码类似于拉曼干涉过程，在这里不过多赘述。
-
-
+We will take the test file `44.py` of the four-pulse interferometer as an example to introduce the usage of the Raman module.
+ - `Raman Rabi`: The principle of Raman Rabi is to verify the proportion of the number of ground-state atoms caused by different laser interaction times, with the aim of finding the optimal Raman light interaction time during the interference process. In our code, we achieve this by modifying the interaction time of the first Raman light. That is, the Raman spectrum can be regarded as an extension of the first pulse interaction time. You can find the parameter initialization in `Line 143 - Line 224` of `44.py`. We increase the parameter `t1_rm1` and then apply the first Raman process in `Line 143 - Line 224` to obtain the Raman Rabi. The time corresponding to the maximum value of $|F = 2\rangle$ in the Raman Rabi is the time $\tau$ required for the complete inversion in the two-photon transition, which is also the time corresponding to the $\pi$ pulse.
+ - `Raman Spectrum`: The principle of the Raman spectrum is to scan the proportion of the number of ground-state atoms near the resonance frequency, with the aim of finding the optimal laser frequency. You can find the evolution code of the Raman spectrum in `Line 271 - Line 306` of `44.py`. `w_scan1` and `w_scan2` are the initial and cut-off frequencies for scanning, and `raman1_num` is the number of scanning points. It should be noted that during the process of scanning the Raman spectrum, the interaction time `t1_rm1` of the Raman light needs to be modified to the optimal time $\tau$ obtained from the Raman Rabi scan.
+ - `Four-Pulse Interferometer`: As can be seen, our code is written in the order of $\pi/2 - \pi - \pi - \pi/2$, and it also includes the gravitational evolution process in between. Therefore, whether it is the simulation of the three-pulse interferometer or the four-pulse interferometer, the results need to be saved in a timely manner during the evolution process to prevent problems caused by environmental crashes.
+ - `Bragg Interferometer`: The test code for the Bragg diffraction atomic interferometer is similar to the Raman interference process, so it will not be elaborated here.
 
 #### Problem Solving
- - `拉曼谱`：在演化过程中只用单个方向的有效波矢$+k_{eff}/-k_{eff}$,所以在拉曼谱的扫描中我们是无法扫描出三个峰的拉曼谱。
- - `顺序混乱`：可以注意到，在我们的演化过程中，解的提取会出现赋值混乱的问题，即有的时候$|F = 1\rangle$态是0：3，有时候是5：8，这是我们内部哈密顿量编写的过程中所导致的问题，我们将会在后续的版本中完善这个问题。
+ - `Raman Spectrum`: Only the effective wave vector in a single direction $+k_{eff}/-k_{eff}$ is used in the evolution process. Therefore, we cannot scan a Raman spectrum with three peaks in the Raman spectrum scan.
+ - `Order Confusion`: It can be noted that in our evolution process, there will be a problem of assignment confusion when extracting the solutions. That is, sometimes the $|F = 1\rangle$ state is from 0:3, and sometimes it is from 5:8. This is a problem caused by the internal Hamiltonian writing process, and we will improve this problem in the subsequent versions.
 ### Detection Module
 The detection module corresponds to `detection_module.py` and `detection_test.py`. In the detection module, we mainly simulate the TOF (Time of flight) method. By simulating the CCD collecting the photons spontaneously emitted by atoms, we obtain the ratio of the number of atoms in the ground states $|F = 1\rangle$ and $|F = 2\rangle$ according to the time-voltage graph of the CCD, and obtain the atomic temperature through Gaussian fitting. In the detection process, we divide it into three processes: the detection of $|F = 2\rangle$ process (referred to as the detection process), the Blow process, and the detection of $|F = 1\rangle$ process (referred to as the pumping process).
 
@@ -125,30 +123,30 @@ Note that `Line n` below refers to the nth line in the `detection_test.py` file.
 - **Evolution Problem**: Compared with the previous modules, we encountered an evolution problem in the detection module. You may notice that we added a code to remove atoms with incorrect shapes in the detection module. This is because some atoms exit the calculation before the given time during the evolution process, and the information of these atoms does not contain the complete evolution process. Our solution is to remove these atoms with incorrect shapes. We have not found out where the problem lies. Fortunately, the proportion of these atoms is not high. Of course, if this problem can be solved, it will make this project more perfect.
 
 
-## 📁 项目结构
+## 📁 Project Structure
 
 ```
 PYLCP-CAI/
-├── 33.py               # 三脉冲干涉测试文件
-├── 44.py               # 四脉冲干涉测试文件
-├── ramanclass.py       # 拉曼干涉函数
-├── braggclass.py       # 布拉格函数文件
-├── braggtest.py        # 布拉格测试文件
-├── detection_module.py # 探测函数文件
-├── detection_test.py   # 探测测试文件
-├── gclass.py           # 布拉格重力演化函数文件
-├── gravity.py          # 拉曼重力演化函数文件
-├── MOT_ALL.py          # 冷却函数文件
-├── MOT_TEST.py         # 冷却上抛测试文件
-├── UP_PGC.py           # 上抛函数文件
-├── README.md           # 本文件
-├── fig1.png            # README.md文件图片
-└── requirements.txt    # 依赖列表
+├── 33.py               # Test file for three-pulse interference
+├── 44.py               # Test file for four-pulse interference
+├── ramanclass.py       # Raman interference function
+├── braggclass.py       # Bragg function file
+├── braggtest.py        # Bragg test file
+├── detection_module.py # Detection function file
+├── detection_test.py   # Detection test file
+├── gclass.py           # Bragg gravitational evolution function file
+├── gravity.py          # Raman gravitational evolution function file
+├── MOT_ALL.py          # Cooling function file
+├── MOT_TEST.py         # Cooling and launching test file
+├── UP_PGC.py           # Launching function file
+├── README.md           # This file
+├── fig1.png            # Image for README.md
+└── requirements.txt    # Dependency list
 ```
-## 🤝 贡献
+## 🤝 Contribution
 
-欢迎提交问题报告和功能请求！
-作者信息：
+Welcome to submit issue reports and feature requests!
+Author information:
 
 Zhao Yingpeng：2112009046@zjut.edu.cn/yingpeng-zhao@mail.tsinghua.edu.cn
 
@@ -157,15 +155,14 @@ Bao Shuning：221122090120@zjut.edu.cn
 Zhang Cheng：202003160319@zjut.edu.cn
 ##
 
-## 📄 许可证
+## 📄 License
+This project follows the same license as the original PyLCP.
 
-本项目遵循与原PyLCP相同的许可证。
+## 🙏 Acknowledgments
 
-## 🙏 致谢
-
-- 原PyLCP库的开发者
-- 所有依赖库的开发者
-- 所有贡献者和测试用户
+- Developers of the original PyLCP library
+- Developers of all dependent libraries
+- All contributors and test users
 
 ---
 
